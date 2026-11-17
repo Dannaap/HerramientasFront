@@ -179,6 +179,16 @@ export default function StoreHeader() {
                     <ul className="py-1.5">
                       <li>
                         <Link
+                          href="/pedidos"
+                          onClick={() => setUserMenuOpen(false)}
+                          className="flex items-center gap-3 px-4 py-2.5 text-sm text-foreground transition-colors hover:bg-accent hover:text-primary"
+                        >
+                          <FiShoppingCart className="h-4 w-4" aria-hidden="true" />
+                          Mis pedidos
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
                           href="/perfil"
                           onClick={() => setUserMenuOpen(false)}
                           className="flex items-center gap-3 px-4 py-2.5 text-sm text-foreground transition-colors hover:bg-accent hover:text-primary"

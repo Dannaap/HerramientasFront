@@ -3,7 +3,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { productPath } from "@/lib/catalog";
+import { isPersistedProductId, productPath } from "@/lib/catalog";
 import { FiHeart, FiShoppingCart, FiCheck, FiArrowRight } from "react-icons/fi";
 import { Product } from "@/data/products";
 import { addToCart } from "@/lib/cart";
@@ -54,6 +54,7 @@ export default function ProductCard({ product }: ProductCardProps) {
   };
 
 const handleAddToCart = () => {
+  if (!isPersistedProductId(product.id)) return;
   setIsAdded(true);
   setTimeout(() => setIsAdded(false), 1600);
 
@@ -141,7 +142,7 @@ const handleAddToCart = () => {
           )}
         </div>
 
-        {product.price > 0 ? (
+        {product.price > 0 && isPersistedProductId(product.id) ? (
           <button
             onClick={handleAddToCart}
             className={`mt-4 flex min-h-11 w-full items-center justify-center gap-2 rounded-lg text-base font-semibold transition-[transform,box-shadow,opacity] duration-200 focus-visible:outline-none focus-visible:ring-2 btn-brand focus-visible:ring-offset-2 ${
@@ -167,7 +168,7 @@ const handleAddToCart = () => {
             href={productPath(product)}
             className="mt-4 flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-muted text-base font-semibold text-foreground transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
           >
-            Ver detalle
+            {product.price > 0 ? "Disponible al conectar el catálogo" : "Ver detalle"}
             <FiArrowRight className="h-4 w-4" aria-hidden="true" />
           </Link>
         )}

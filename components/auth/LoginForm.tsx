@@ -13,7 +13,6 @@ export const LoginForm = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Login:", { email, password, rememberMe });
   };
 
   return (

@@ -17,6 +17,7 @@ import {
 } from "react-icons/fi";
 import { Product } from "@/data/products";
 import { addToCart } from "@/lib/cart";
+import { isPersistedProductId } from "@/lib/catalog";
 
 interface ProductInfoProps {
   product: Product;
@@ -30,6 +31,7 @@ export default function ProductInfo({ product }: ProductInfoProps) {
 
   const hasPrice = product.price > 0;
   const available = product.stock > 0;
+  const persisted = isPersistedProductId(product.id);
   const maxQuantity = Math.max(1, Math.min(product.stock, 10));
 
   const whatsappHref = `https://wa.me/51987654321?text=${encodeURIComponent(
@@ -37,7 +39,7 @@ export default function ProductInfo({ product }: ProductInfoProps) {
   )}`;
 
 const agregarAlCarrito = (irAlCheckout = false) => {
-  if (!hasPrice || !available) return;
+  if (!hasPrice || !available || !isPersistedProductId(product.id)) return;
 
   try {
     addToCart(
@@ -148,7 +150,7 @@ const agregarAlCarrito = (irAlCheckout = false) => {
         )}
       </div>
 
-      {hasPrice && available && (
+      {hasPrice && available && isPersistedProductId(product.id) && (
         <div className="mt-6">
           <span className="text-base font-medium text-foreground">
             Cantidad
@@ -188,7 +190,7 @@ const agregarAlCarrito = (irAlCheckout = false) => {
         {hasPrice ? (
           <button
             onClick={() => agregarAlCarrito()}
-            disabled={!available}
+            disabled={!available || !persisted}
             className={`flex min-h-12 w-full items-center justify-center gap-2 rounded-lg text-base font-semibold transition-[transform,box-shadow,opacity] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${
               isAdded
                 ? "bg-foreground text-background"
@@ -203,7 +205,11 @@ const agregarAlCarrito = (irAlCheckout = false) => {
             ) : (
               <>
                 <FiShoppingCart className="h-4 w-4" aria-hidden="true" />
-                {available ? "Añadir al carrito" : "Sin stock"}
+                {!persisted
+                  ? "Disponible al conectar el catálogo"
+                  : available
+                    ? "Añadir al carrito"
+                    : "Sin stock"}
               </>
             )}
           </button>
@@ -219,7 +225,7 @@ const agregarAlCarrito = (irAlCheckout = false) => {
           </a>
         )}
 
-        {hasPrice && available && (
+        {hasPrice && available && isPersistedProductId(product.id) && (
   <button
     onClick={() => agregarAlCarrito(true)}
     className="flex min-h-12 w-full items-center justify-center gap-2 rounded-lg bg-secondary text-base font-semibold btn-brand transition-opacity hover:opacity-90 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary/60 focus-visible:ring-offset-2"

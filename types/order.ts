@@ -2,7 +2,7 @@
 // El cliente NO envía precios ni totales: los calcula el servidor.
 
 
-export type PaymentMethod = "YAPE" | "TRANSFERENCIA" | "EFECTIVO";
+export type PaymentMethod = "YAPE" | "PLIN" | "CARD" | "TRANSFERENCIA" | "EFECTIVO";
 
 export interface CreateOrderItem {
   productId: string; // UUID del producto en el backend
@@ -38,10 +38,55 @@ export interface OrderResponse {
   status: string;
   paymentMethod: string;
   paymentStatus: string;
+  currency: string;
   createdAt: string;
   items: OrderLine[];
   total: number;
   customer?: OrderCustomer | null;
+}
+
+export type PaymentScenario = "APPROVED" | "REJECTED" | "PENDING";
+
+export interface PaymentRequest {
+  scenario: PaymentScenario;
+}
+
+export interface PaymentResponse {
+  transactionId: string;
+  orderId: string;
+  transactionReference: string;
+  paymentMethod: PaymentMethod;
+  status: PaymentScenario | "PROCESSING" | "CANCELLED";
+  amount: number;
+  currency: string;
+  operationCode?: string | null;
+  failureReason?: string | null;
+  orderStatus: string;
+  orderPaymentStatus: string;
+  createdAt: string;
+  processedAt?: string | null;
+}
+
+export interface OrderSummaryResponse {
+  id: string;
+  orderNumber: string;
+  createdAt: string;
+  total: number;
+  currency: string;
+  status: string;
+  paymentMethod: PaymentMethod;
+  paymentStatus: string;
+  itemCount: number;
+}
+
+export interface OrderPageResponse {
+  content: OrderSummaryResponse[];
+  number: number;
+  size: number;
+  totalPages: number;
+  totalElements: number;
+  first: boolean;
+  last: boolean;
 }
 
 // Formato de error del GlobalExceptionHandler del backend.

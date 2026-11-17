@@ -3,6 +3,7 @@ import type {
   CreateOrderRequest,
   OrderErrorBody,
   OrderResponse,
+  OrderPageResponse,
 } from "@/types/order";
 
 export class OrderError extends Error {
@@ -18,12 +19,14 @@ export class OrderError extends Error {
 }
 
 export async function createOrder(
-  payload: CreateOrderRequest
+  payload: CreateOrderRequest,
+  idempotencyKey: string
 ): Promise<OrderResponse> {
   const response = await fetch(getApiUrl("/api/orders"), {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      "Idempotency-Key": idempotencyKey,
       ...getAuthHeaders(),
     },
     body: JSON.stringify(payload),
@@ -48,4 +51,28 @@ export async function createOrder(
   }
 
   return (await response.json()) as OrderResponse;
+}
+
+export async function getOrder(orderId: string): Promise<OrderResponse> {
+  const response = await fetch(getApiUrl(`/api/orders/${encodeURIComponent(orderId)}`), {
+    headers: {
+      ...getAuthHeaders(),
+    },
+  });
+
+  if (!response.ok) {
+    throw new OrderError("No se pudo recuperar el pedido.", response.status);
+  }
+
+  return (await response.json()) as OrderResponse;
+}
+
+export async function listOrders(page = 0, size = 10): Promise<OrderPageResponse> {
+  const response = await fetch(getApiUrl(`/api/orders?page=${page}&size=${size}`), {
+    headers: getAuthHeaders(),
+  });
+  if (!response.ok) {
+    throw new OrderError("No se pudo recuperar el historial de pedidos.", response.status);
+  }
+  return (await response.json()) as OrderPageResponse;
 }

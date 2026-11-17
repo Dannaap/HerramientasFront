@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { FcGoogle } from "react-icons/fc";
 import { FaFacebookF, FaInstagram } from "react-icons/fa";
 import { FiEye, FiEyeOff, FiMail, FiLock, FiUser } from "react-icons/fi"; 
+import { authService } from "@/services/auth.service";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -66,6 +67,7 @@ export default function RegisterPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isSubmitting) return;
     setErrorMsg(null);
     setSuccessMsg(null);
     if (!validate()) return;
@@ -73,8 +75,11 @@ export default function RegisterPage() {
     setIsSubmitting(true);
     setIsFloating(false);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      console.log("Registro exitoso:", { name, lastName, email, password });
+      await authService.register({
+        fullName: `${name.trim()} ${lastName.trim()}`,
+        email: email.trim(),
+        password,
+      });
       setSuccessMsg("¡Cuenta creada correctamente! Redirigiendo...");
       setTimeout(() => router.push("/login"), 1500);
     } catch (err) {
