@@ -164,13 +164,17 @@ const handleAddToCart = () => {
             )}
           </button>
         ) : (
-          <Link
-            href={productPath(product)}
-            className="mt-4 flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-muted text-base font-semibold text-foreground transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
-          >
-            {product.price > 0 ? "Disponible al conectar el catálogo" : "Ver detalle"}
-            <FiArrowRight className="h-4 w-4" aria-hidden="true" />
-          </Link>
+          <div className="mt-4">
+            <p className="mb-2 text-xs text-muted-foreground" role="status">
+              {product.price > 0 ? "No disponible para compra: falta sincronizarlo con el catálogo." : "Precio por confirmar."}
+            </p>
+            <Link
+              href={productPath(product)}
+              className="flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-muted text-base font-semibold text-foreground transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
+            >
+              Ver detalle <FiArrowRight className="h-4 w-4" aria-hidden="true" />
+            </Link>
+          </div>
         )}
       </div>
     </article>

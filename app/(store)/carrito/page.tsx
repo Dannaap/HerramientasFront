@@ -3,7 +3,7 @@
 
 import { useSyncExternalStore } from "react";
 import Link from "next/link";
-import { productPath } from "@/lib/catalog";
+import { isPersistedProductId, productPath } from "@/lib/catalog";
 import { useRouter } from "next/navigation";
 
 import {
@@ -84,6 +84,13 @@ export default function CarritoPage() {
   };
 
   const totalItems = carrito.reduce((acc, item) => acc + item.cantidad, 0);
+  const unavailableItems = isLoaded
+    ? carrito.filter(
+        (item) =>
+          !isPersistedProductId(item.id) ||
+          !allProducts.some((product) => product.id === item.id),
+      )
+    : [];
   const subtotal = carrito.reduce(
     (acc, item) => acc + item.precio * item.cantidad,
     0,
@@ -186,6 +193,11 @@ export default function CarritoPage() {
             {totalItems} {totalItems === 1 ? "unidad" : "unidades"} en{" "}
             {carrito.length} {carrito.length === 1 ? "producto" : "productos"}
           </p>
+          {unavailableItems.length > 0 && (
+            <p className="mt-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950" role="alert">
+              {unavailableItems.length === 1 ? "Hay un producto" : `Hay ${unavailableItems.length} productos`} sin sincronizar con el catálogo. No se puede finalizar la compra hasta quitarlo del carrito.
+            </p>
+          )}
 
           <div className="mt-4 grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,1fr)_380px] lg:items-start lg:gap-12">
             <ul className="space-y-4">
@@ -295,7 +307,7 @@ export default function CarritoPage() {
 
               <button
                 onClick={finalizarCompra}
-                disabled={carrito.length === 0}
+                disabled={carrito.length === 0 || unavailableItems.length > 0}
                 className={`mt-6 inline-flex min-h-12 w-full items-center justify-center rounded-lg ${gradientBg} px-6 py-3 text-sm font-extrabold uppercase tracking-wider text-white transition-[transform,box-shadow,opacity] duration-200 hover:opacity-90 hover:shadow-xl active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#0b1c30] disabled:cursor-not-allowed disabled:opacity-50`}
               >
                 Finalizar compra

@@ -187,6 +187,11 @@ const agregarAlCarrito = (irAlCheckout = false) => {
       )}
 
       <div className="mt-6 space-y-3">
+        {hasPrice && !persisted && (
+          <p className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950" role="status">
+            Este producto está visible en el catálogo original, pero aún no está sincronizado con el catálogo disponible para compras.
+          </p>
+        )}
         {hasPrice ? (
           <button
             onClick={() => agregarAlCarrito()}

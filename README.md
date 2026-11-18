@@ -141,7 +141,7 @@ Sigue estos pasos para ejecutar el proyecto en tu entorno local:
 
 * Node.js 18.x o superior
 * npm / pnpm / yarn
-* Backend corriendo en http://localhost:3000
+* Backend corriendo en http://localhost:8080
 
 ### 1. Clonar el repositorio
 
@@ -163,7 +163,7 @@ npm install
 Crea un archivo `.env.local` en la raíz del proyecto guiándote del ejemplo:
 
 ```env
-NEXT_PUBLIC_API_URL=http://localhost:[8080/api]
+NEXT_PUBLIC_API_URL=http://localhost:8080/api
 
 ```
 
@@ -184,10 +184,16 @@ La aplicación estará disponible en [http://localhost:3000](http://localhost:30
 # Ejecutar para la construcción y verificación del front
 pnpm build
 
-# Ejecutar en local
+# Ejecutar el frontend en local
 pnpm dev
 
 ```
+
+Para probar checkout, ejecuta el backend en `http://localhost:8080` con
+`NEXORA_PAYMENTS_SIMULATION_ENABLED=true`. Inicia sesión, agrega un producto cuyo
+ID sea un UUID del catálogo backend y completa `/checkout`. El frontend envía el
+JWT como `Authorization: Bearer` y claves `Idempotency-Key` separadas para pedido
+y pago.
 
 ---
 
