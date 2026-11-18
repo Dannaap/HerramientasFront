@@ -31,7 +31,6 @@ export default function ProductInfo({ product }: ProductInfoProps) {
 
   const hasPrice = product.price > 0;
   const available = product.stock > 0;
-  const persisted = isPersistedProductId(product.id);
   const maxQuantity = Math.max(1, Math.min(product.stock, 10));
 
   const whatsappHref = `https://wa.me/51987654321?text=${encodeURIComponent(
@@ -187,15 +186,10 @@ const agregarAlCarrito = (irAlCheckout = false) => {
       )}
 
       <div className="mt-6 space-y-3">
-        {hasPrice && !persisted && (
-          <p className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950" role="status">
-            Este producto está visible en el catálogo original, pero aún no está sincronizado con el catálogo disponible para compras.
-          </p>
-        )}
         {hasPrice ? (
           <button
             onClick={() => agregarAlCarrito()}
-            disabled={!available || !persisted}
+            disabled={!available}
             className={`flex min-h-12 w-full items-center justify-center gap-2 rounded-lg text-base font-semibold transition-[transform,box-shadow,opacity] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${
               isAdded
                 ? "bg-foreground text-background"
@@ -210,11 +204,7 @@ const agregarAlCarrito = (irAlCheckout = false) => {
             ) : (
               <>
                 <FiShoppingCart className="h-4 w-4" aria-hidden="true" />
-                {!persisted
-                  ? "Disponible al conectar el catálogo"
-                  : available
-                    ? "Añadir al carrito"
-                    : "Sin stock"}
+                {available ? "Añadir al carrito" : "Sin stock"}
               </>
             )}
           </button>

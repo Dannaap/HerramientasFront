@@ -1,4 +1,6 @@
 // lib/cart.ts
+import type { Product } from "@/data/products";
+
 export interface CartItem {
   id: string;
   nombre: string;
@@ -60,4 +62,11 @@ export function addToCart(item: Omit<CartItem, "cantidad">, cantidad = 1) {
   }
 
   writeCart(items);
+}
+
+export function findUnavailableCartItems(items: CartItem[], products: Product[]) {
+  return items.filter((item) => {
+    const product = products.find((candidate) => candidate.id === item.id);
+    return !product || product.stock < item.cantidad;
+  });
 }

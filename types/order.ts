@@ -2,7 +2,7 @@
 // El cliente NO envía precios ni totales: los calcula el servidor.
 
 
-export type PaymentMethod = "YAPE" | "PLIN" | "CARD" | "TRANSFERENCIA" | "EFECTIVO";
+export type PaymentMethod = "YAPE" | "PLIN" | "CARD";
 
 export interface CreateOrderItem {
   productId: string; // UUID del producto en el backend
@@ -55,7 +55,7 @@ export interface PaymentResponse {
   transactionId: string;
   orderId: string;
   transactionReference: string;
-  paymentMethod: PaymentMethod;
+  paymentMethod: string;
   status: PaymentScenario | "PROCESSING" | "CANCELLED";
   amount: number;
   currency: string;
@@ -74,7 +74,7 @@ export interface OrderSummaryResponse {
   total: number;
   currency: string;
   status: string;
-  paymentMethod: PaymentMethod;
+  paymentMethod: string;
   paymentStatus: string;
   itemCount: number;
 }

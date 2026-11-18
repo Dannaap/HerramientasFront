@@ -142,7 +142,7 @@ const handleAddToCart = () => {
           )}
         </div>
 
-        {product.price > 0 && isPersistedProductId(product.id) ? (
+        {product.price > 0 && isPersistedProductId(product.id) && product.stock > 0 ? (
           <button
             onClick={handleAddToCart}
             className={`mt-4 flex min-h-11 w-full items-center justify-center gap-2 rounded-lg text-base font-semibold transition-[transform,box-shadow,opacity] duration-200 focus-visible:outline-none focus-visible:ring-2 btn-brand focus-visible:ring-offset-2 ${
@@ -166,7 +166,7 @@ const handleAddToCart = () => {
         ) : (
           <div className="mt-4">
             <p className="mb-2 text-xs text-muted-foreground" role="status">
-              {product.price > 0 ? "No disponible para compra: falta sincronizarlo con el catálogo." : "Precio por confirmar."}
+              {product.price > 0 && product.stock <= 0 ? "Sin stock." : "Precio por confirmar."}
             </p>
             <Link
               href={productPath(product)}

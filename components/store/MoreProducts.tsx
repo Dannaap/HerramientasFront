@@ -7,7 +7,7 @@ import Reveal from "@/components/ui/reveal";
 import { useCombinedProducts } from "@/lib/use-combined-products";
 
 export default function MoreProducts() {
-  const { allProducts, isLoaded } = useCombinedProducts();
+  const { allProducts, isLoaded, error } = useCombinedProducts();
 
   // Mismo criterio que la portada: primero los productos con precio real.
   const conPrecio = allProducts.filter((product) => product.price > 0);
@@ -18,7 +18,7 @@ export default function MoreProducts() {
 
   // Si el catálogo real no alcanza para una segunda tanda, la sección no se
   // renderiza: un encabezado sin productos se lee como un fallo de carga.
-  if (isLoaded && productsToShow.length === 0) return null;
+  if (error || (isLoaded && productsToShow.length === 0)) return null;
 
   return (
     <section className="mx-auto w-full max-w-[1400px] px-5 py-16 sm:px-6 lg:px-8 lg:py-24">

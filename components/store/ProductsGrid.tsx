@@ -11,9 +11,10 @@ import type { Product } from "@/data/products";
 type ProductsGridProps = {
   products: Product[];
   isLoaded: boolean;
+  error?: Error | null;
 };
 
-export default function ProductsGrid({ products, isLoaded }: ProductsGridProps) {
+export default function ProductsGrid({ products, isLoaded, error }: ProductsGridProps) {
   const [sortBy, setSortBy] = useState("relevancia");
 
   const sortedProducts = useMemo(() => {
@@ -39,6 +40,17 @@ export default function ProductsGrid({ products, isLoaded }: ProductsGridProps) 
             <div className="mt-2 h-4 w-2/3 rounded bg-muted" />
           </div>
         ))}
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="rounded-xl border border-amber-200 bg-amber-50 p-10 text-center">
+        <h2 className="text-xl font-semibold text-foreground">No se pudo cargar el catálogo</h2>
+        <p className="mx-auto mt-2 max-w-md text-base text-muted-foreground">
+          Intenta recargar la página para consultar los productos disponibles.
+        </p>
       </div>
     );
   }

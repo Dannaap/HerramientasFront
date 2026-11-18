@@ -7,7 +7,7 @@ import Reveal from "@/components/ui/reveal";
 import { useCombinedProducts } from "@/lib/use-combined-products";
 
 export default function NewArrivals() {
-  const { allProducts, isLoaded } = useCombinedProducts();
+  const { allProducts, isLoaded, error } = useCombinedProducts();
 
   // En la portada solo se muestran productos con precio; el catálogo conserva
   // los que están pendientes de precio para consulta.
@@ -37,7 +37,11 @@ export default function NewArrivals() {
         </Link>
       </Reveal>
 
-      <div className="grid grid-cols-2 gap-x-4 gap-y-10 sm:grid-cols-3 sm:gap-x-5 lg:grid-cols-4 lg:gap-x-6">
+      {error && isLoaded ? (
+        <p className="rounded-xl border border-amber-200 bg-amber-50 p-6 text-sm text-amber-950">
+          No se pudo cargar el catálogo desde el backend.
+        </p>
+      ) : <div className="grid grid-cols-2 gap-x-4 gap-y-10 sm:grid-cols-3 sm:gap-x-5 lg:grid-cols-4 lg:gap-x-6">
         {isLoaded
           ? productsToShow.map((product, index) => (
               <Reveal key={product.id} delay={(index % 4) * 70}>
@@ -52,7 +56,7 @@ export default function NewArrivals() {
                 <div className="mt-2 h-4 w-2/3 rounded bg-muted" />
               </div>
             ))}
-      </div>
+      </div>}
     </section>
   );
 }

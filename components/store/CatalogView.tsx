@@ -31,7 +31,7 @@ const normalize = (str: string | undefined | null) =>
 
 export default function CatalogView() {
   const searchParams = useSearchParams();
-  const { allProducts, isLoaded } = useCombinedProducts();
+  const { allProducts, isLoaded, error } = useCombinedProducts();
 
   const categoriaParam = searchParams.get("categoria");
   const busquedaParam = searchParams.get("q");
@@ -128,7 +128,7 @@ export default function CatalogView() {
           {categoriaLabel}
         </h2>
       )}
-      <ProductsGrid products={filteredProducts} isLoaded={isLoaded} />
+      <ProductsGrid products={filteredProducts} isLoaded={isLoaded} error={error} />
     </div>
   );
 

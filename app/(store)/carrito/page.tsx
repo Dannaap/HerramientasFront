@@ -3,7 +3,7 @@
 
 import { useSyncExternalStore } from "react";
 import Link from "next/link";
-import { isPersistedProductId, productPath } from "@/lib/catalog";
+import { productPath } from "@/lib/catalog";
 import { useRouter } from "next/navigation";
 
 import {
@@ -24,6 +24,7 @@ import { useAuth } from "@/context/auth-context";
 
 import {
   EMPTY_CART,
+  findUnavailableCartItems,
   readCart,
   subscribeToCart,
   writeCart,
@@ -42,7 +43,7 @@ export default function CarritoPage() {
     readCart,
     () => EMPTY_CART,
   );
-  const { allProducts, isLoaded } = useCombinedProducts();
+  const { allProducts, isLoaded, error: catalogError } = useCombinedProducts();
   const router = useRouter();
   const { user } = useAuth();
 
@@ -85,16 +86,12 @@ export default function CarritoPage() {
 
   const totalItems = carrito.reduce((acc, item) => acc + item.cantidad, 0);
   const unavailableItems = isLoaded
-    ? carrito.filter(
-        (item) =>
-          !isPersistedProductId(item.id) ||
-          !allProducts.some((product) => product.id === item.id),
-      )
-    : [];
-  const subtotal = carrito.reduce(
-    (acc, item) => acc + item.precio * item.cantidad,
-    0,
-  );
+    ? findUnavailableCartItems(carrito, allProducts)
+    : carrito;
+  const subtotal = carrito.reduce((acc, item) => {
+    const currentProduct = allProducts.find((product) => product.id === item.id);
+    return acc + (currentProduct?.price ?? item.precio) * item.cantidad;
+  }, 0);
 
   const mensajeWhatsApp =
     carrito.length > 0
@@ -193,28 +190,40 @@ export default function CarritoPage() {
             {totalItems} {totalItems === 1 ? "unidad" : "unidades"} en{" "}
             {carrito.length} {carrito.length === 1 ? "producto" : "productos"}
           </p>
-          {unavailableItems.length > 0 && (
+          {catalogError ? (
+            <p className="mt-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-900" role="alert">
+              No se pudo validar el catálogo actual. Recarga la página antes de finalizar la compra.
+            </p>
+          ) : unavailableItems.length > 0 && (
             <p className="mt-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950" role="alert">
-              {unavailableItems.length === 1 ? "Hay un producto" : `Hay ${unavailableItems.length} productos`} sin sincronizar con el catálogo. No se puede finalizar la compra hasta quitarlo del carrito.
+              {unavailableItems.length === 1 ? "Hay un producto" : `Hay ${unavailableItems.length} productos`} que ya no está disponible en la cantidad solicitada. Actualiza el carrito antes de finalizar la compra.
             </p>
           )}
 
           <div className="mt-4 grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,1fr)_380px] lg:items-start lg:gap-12">
             <ul className="space-y-4">
               {carrito.map((item, index) => (
+                (() => {
+                  const currentProduct = allProducts.find((product) => product.id === item.id);
+                  const displayName = currentProduct?.name ?? item.nombre;
+                  const displayPrice = currentProduct?.price ?? item.precio;
+                  const displayImage = currentProduct?.image ?? item.imagen;
+                  const displaySku = currentProduct?.sku ?? item.especificacion;
+
+                  return (
                 <li
                   key={item.id}
                   className="hero-rise flex flex-wrap items-start gap-4 rounded-2xl border border-border bg-card p-4 transition-shadow duration-200 hover:shadow-lg sm:flex-nowrap sm:gap-6 sm:p-5"
                   style={{ animationDelay: `${120 + index * 70}ms` }}
                 >
                   <Link
-                    href={productPath(allProducts.find((p) => p.id === item.id) ?? item)}
+                    href={productPath(currentProduct ?? item)}
                     className="block h-28 w-28 shrink-0 overflow-hidden rounded-xl bg-muted sm:h-32 sm:w-32"
                     aria-label={`Ver ${item.nombre}`}
                   >
                     <img
-                      src={item.imagen || "/producto-placeholder.svg"}
-                      alt={item.nombre}
+                      src={displayImage || "/producto-placeholder.svg"}
+                      alt={displayName}
                       className="h-full w-full object-contain p-2 mix-blend-multiply"
                     />
                   </Link>
@@ -222,27 +231,27 @@ export default function CarritoPage() {
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-1">
                       <div className="min-w-0">
-                        {item.especificacion && (
+                        {displaySku && (
                           <p className="text-xs font-extrabold uppercase tracking-wider text-brand">
-                            {item.especificacion}
+                            {displaySku}
                           </p>
                         )}
                         <Link
-                          href={productPath(allProducts.find((p) => p.id === item.id) ?? item)}
+                          href={productPath(currentProduct ?? item)}
                           className="mt-1 block text-lg font-bold leading-snug text-foreground transition-colors hover:text-brand"
                         >
-                          {item.nombre}
+                          {displayName}
                         </Link>
                         <p className="mt-1 text-sm text-muted-foreground">
-                          {item.precio > 0
-                            ? `S/ ${item.precio.toFixed(2)} por unidad`
+                          {displayPrice > 0
+                            ? `S/ ${displayPrice.toFixed(2)} por unidad`
                             : "Precio por confirmar"}
                         </p>
                       </div>
 
                       <p className="whitespace-nowrap text-xl font-extrabold text-foreground tabular-nums sm:text-2xl">
-                        {item.precio > 0
-                          ? `S/ ${(item.precio * item.cantidad).toFixed(2)}`
+                        {displayPrice > 0
+                          ? `S/ ${(displayPrice * item.cantidad).toFixed(2)}`
                           : "Por confirmar"}
                       </p>
                     </div>
@@ -278,6 +287,8 @@ export default function CarritoPage() {
                     </div>
                   </div>
                 </li>
+                  );
+                })()
               ))}
             </ul>
 
@@ -307,7 +318,7 @@ export default function CarritoPage() {
 
               <button
                 onClick={finalizarCompra}
-                disabled={carrito.length === 0 || unavailableItems.length > 0}
+                disabled={!isLoaded || carrito.length === 0 || unavailableItems.length > 0}
                 className={`mt-6 inline-flex min-h-12 w-full items-center justify-center rounded-lg ${gradientBg} px-6 py-3 text-sm font-extrabold uppercase tracking-wider text-white transition-[transform,box-shadow,opacity] duration-200 hover:opacity-90 hover:shadow-xl active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#0b1c30] disabled:cursor-not-allowed disabled:opacity-50`}
               >
                 Finalizar compra

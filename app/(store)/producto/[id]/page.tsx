@@ -9,11 +9,9 @@ import ProductInfo from "@/components/store/ProductInfo";
 import ProductTabs from "@/components/store/ProductTabs";
 import RelatedProducts from "@/components/store/RelatedProducts";
 import Reveal from "@/components/ui/reveal";
-import { newArrivals, moreProducts, Product } from "@/data/products";
+import type { Product } from "@/data/products";
 import { apiProductToEcommerce } from "@/lib/catalog";
 import { productService } from "@/services/product.service";
-
-const baseProducts = [...newArrivals, ...moreProducts];
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -27,22 +25,20 @@ export default function ProductoPage({ params }: PageProps) {
 function ProductoDetail({ id }: { id: string }) {
   const router = useRouter();
 
-  const isBaseProduct = baseProducts.some((p) => p.id === id);
-
-  const [product, setProduct] = useState<Product | null>(
-    () => baseProducts.find((p) => p.id === id) ?? null,
-  );
-  const [isLoading, setIsLoading] = useState(() => !isBaseProduct);
+  const [product, setProduct] = useState<Product | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [missing, setMissing] = useState(false);
 
   // Acepta slugs y conserva los enlaces antiguos por UUID.
   useEffect(() => {
-    if (isBaseProduct) return;
-
     let cancelled = false;
     const request = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
       ? productService.get(id)
-      : productService.getBySlug(id);
+      : productService.list().then((products) => {
+          const product = products.find((item) => item.slug === id);
+          if (!product) throw new Error("Producto no encontrado");
+          return product;
+        });
     request
       .then((apiProduct) => {
         if (!cancelled) {
@@ -62,7 +58,7 @@ function ProductoDetail({ id }: { id: string }) {
     return () => {
       cancelled = true;
     };
-  }, [id, isBaseProduct, router]);
+  }, [id, router]);
 
   if (isLoading) {
     return (

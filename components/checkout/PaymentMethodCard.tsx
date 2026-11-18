@@ -1,28 +1,22 @@
-import { CreditCard, Landmark, Smartphone, Truck } from "lucide-react";
+import { CreditCard, Smartphone } from "lucide-react";
 import type { PaymentMethod } from "@/types/order";
 
 const icons = {
   YAPE: Smartphone,
   PLIN: Smartphone,
   CARD: CreditCard,
-  TRANSFERENCIA: Landmark,
-  EFECTIVO: Truck,
 } satisfies Record<PaymentMethod, typeof Smartphone>;
 
 const descriptions: Record<PaymentMethod, string> = {
   YAPE: "Pago con billetera móvil",
   PLIN: "Pago con billetera móvil",
   CARD: "Crédito o débito",
-  TRANSFERENCIA: "Transferencia bancaria",
-  EFECTIVO: "Pago contra entrega",
 };
 
 const labels: Record<PaymentMethod, string> = {
   YAPE: "Yape",
   PLIN: "Plin",
   CARD: "Tarjeta de crédito o débito",
-  TRANSFERENCIA: "Transferencia",
-  EFECTIVO: "Contra entrega",
 };
 
 export default function PaymentMethodCard({ method, selected, onSelect }: { method: PaymentMethod; selected: boolean; onSelect: () => void }) {
